@@ -167,7 +167,7 @@ TRANSITION_MATRIX = {
 # }
 
 # Format: (x, y)
-players = [
+players_starting = [
     [100, FIELD_HEIGHT-SCORING_ZONE_HEIGHT - 50],
     [200, FIELD_HEIGHT-SCORING_ZONE_HEIGHT - 50],
     [200, FIELD_HEIGHT-SCORING_ZONE_HEIGHT - 150],
@@ -183,6 +183,7 @@ class PlayMaker:
         self.players = players
         self.holder = 1
         self.disc_pos = [self.players[self.holder][0], self.players[self.holder][1]]
+        self.last_in_stack = len(self.players) - 1
     
     def get_next_move(self, current_move="START"):
         return np.random.choice(
@@ -191,7 +192,6 @@ class PlayMaker:
 		)
     
     def draw_players(self, screen):
-        # print("Drawing players: ", self.players)
         for i, player in enumerate(self.players):
             if i == self.holder:
                 pygame.draw.circle(screen, (255, 0, 0), player, 15)
@@ -230,31 +230,34 @@ class PlayMaker:
 
 
     def return_to_position(self, index):
-        print("Returning to position: ", index)
         if index == 0:
             handler_pos = self.get_player_pos(1)
             self.move_player(index, handler_pos[0]-HANDLER_OFFSET ,handler_pos[1])
         
         elif index == 1:
             handler_pos = self.get_player_pos(0)
-            # print("Handler pos: ", handler_pos)
             self.move_player(index, handler_pos[0]+HANDLER_OFFSET, handler_pos[1])
+       
+        elif index == 2:
+            stack_mid_pos = self.get_player_pos(3)
+            self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] + STACK_SPACING)
 
         elif index == 3:
             front_stack_pos = self.get_player_pos(2)
             self.move_player(index, front_stack_pos[0], front_stack_pos[1] - STACK_SPACING)
 
-        elif index == 2:
-            stack_mid_pos = self.get_player_pos(3)
-            self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] + STACK_SPACING)
+            self.last_in_stack += 1
 
         elif index == 4:
-            stack_mid_pos = self.get_player_pos(3)
-            self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] - STACK_SPACING)
+            stack_mid_pos = self.get_player_pos(2)
+            self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] - STACK_SPACING*2)
+            self.last_in_stack += 1
+
+    def move_all_after_cut(self):
+        self.move_all_players_detla(0, up=self.get_player_pos(0)[1] - self.disc_pos[1], exclude_index=self.holder)
 
 
-
-    def pass_to_player(self, player_index):
+    def pass_to_player_and_clear(self, player_index):
 
         if player_index < 0:
             raise ValueError(f'Player index {player_index} is out of bounds; it must be non-negative.')
@@ -269,17 +272,39 @@ class PlayMaker:
 
     def pass_to_reset(self):
         if self.holder != 1:
-            self.pass_to_player(1)
+            self.pass_to_player_and_clear(1)
 
         else:
-            self.pass_to_player(0)
+            self.pass_to_player_and_clear(0)
+
+    def make_in_cut(self):
+        current_pos = self.get_player_pos(len(self.players) - 1)
+        self.move_player(len(self.players) -1, current_pos[0] + 100, current_pos[1] + 100)
+        # print("\n\nLast in stack in in cut before removing: ", self.last_in_stack)
+        # self.last_in_stack -= 1
+
+    def make_deep_cut(self):
+        # last_in_stack = len(self.players) - 1
+
+        # if last_in_stack == self.holder:
+        #     last_in_stack -= 1
+        
+        # print("Last in stack in deep cut: ", self.last_in_stack)
+        self.move_player(self.last_in_stack, FIELD_WIDTH * 0.75, SCORING_ZONE_HEIGHT/2)
+        # self.last_in_stack -= 1
 
     
-    def pass_to_in_cut(self):
-        self.pass_to_player(2)
+
+    def pass_to_cut(self):
+        self.pass_to_player_and_clear(self.last_in_stack)
+        self.last_in_stack -= 1
+
     
     def pass_to_deep_cut(self):
-        self.pass_to_player(4)
+        self.pass_to_player_and_clear(self.last_in_stack)
+        self.last_in_stack -= 1
+
+    
     
     def do_next_move(self, next_move):
         if next_move == "RESET_BREAK":
@@ -288,7 +313,7 @@ class PlayMaker:
         elif next_move == "RESEST_UPLINE":
             self.pass_to_reset()
         elif next_move == "STACK_IN_CUT":
-            self.pass_to_in_cut()
+            self.pass_to_cut()
         elif next_move == "STACK_BREAK_CUT":
             pass
         elif next_move == "STACK_DEEP_CUT":
@@ -299,7 +324,7 @@ class PlayMaker:
 
 
 def main():
-    playmaker = PlayMaker(players=players)
+    playmaker = PlayMaker(players=players_starting)
 
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HIGHT))
@@ -363,21 +388,37 @@ def main():
         if i == 3:
             playmaker.do_next_move("RESET_BREAK")
 
-        if i == 4:
-            playmaker.move_player(3, 100,  100)
+        # if i == 4:
+            # playmaker.move_player(3, 100,  100)
 
         if i == 5 or i == 6:
             playmaker.move_all_players_detla(0, up=20, exclude_index=playmaker.holder)
 
-        if i == 7:
-            playmaker.return_to_position(3)
+        # if i == 7:
+        #     playmaker.return_to_position(3)
 
         if i == 8:
             playmaker.pass_to_reset()
+        
+        if i == 9:
+            playmaker.make_in_cut()
 
+        if i == 10:
+            playmaker.pass_to_cut()
+
+        if i == 11: 
+            playmaker.move_all_after_cut()
+        
+        # if i == 12:
+        #     playmaker.do_next_move("RESET_BREAK")
+
+        if i == 13:
+            playmaker.make_deep_cut()
+        
+        if i == 14:
+            playmaker.pass_to_cut()
         # if playmaker.holder != 4:
         #     playmaker.pass_to_deep_cut()
-
 
         # current_move = next_move
 
