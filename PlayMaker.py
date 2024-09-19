@@ -13,9 +13,12 @@ SCORING_ZONE_HEIGHT = 75
 GREEN = (44, 128, 44)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+RED = (255, 0, 0)
 
 HANDLER_OFFSET = 100
 STACK_SPACING = 50
+
+MOVES_LIST_SPACING = 50
 
 TRANSITION_MATRIX = {
     "START": {
@@ -174,25 +177,42 @@ class PlayMaker:
 			self.moves,
 			p = [self.transition_matrix[current_move][next_move] for next_move in self.moves],
 		)
+    def draw_initial(self, screen):
+        pygame.draw.rect(screen, WHITE, (FIELD_WIDTH, 0, SCREEN_WIDTH-FIELD_WIDTH, SCREEN_HEIGHT))  # Right stats zone
+        pygame.draw.line(screen, BLACK, (SCREEN_WIDTH - FIELD_WIDTH, 0), (SCREEN_WIDTH - FIELD_WIDTH, SCREEN_HEIGHT), 3)
+
+    def render_moves_list_text(self, moves, screen, font):
+
+        for i, move in enumerate(moves):
+            text_surface = font.render(move, True, BLACK)
+            screen.blit(text_surface, (FIELD_WIDTH + 20, 20 + i*MOVES_LIST_SPACING))
+
+    def render_score_text(self, screen, font):
+        print("SCORE!")
+        text_surface = font.render("SCORE!", True, RED)
+        screen.blit(text_surface, (FIELD_WIDTH + 20, SCREEN_HEIGHT*0.8))
     
+
     def draw_players(self, screen):
         for i, player in enumerate(self.players):
             if i == self.holder:
                 pygame.draw.circle(screen, (255, 0, 0), player, 15)
             else:
                 pygame.draw.circle(screen, (0, 0, 255), player, 15)
-    
 
         # Draw the field
     def draw_field(self, screen):
-        screen.fill(GREEN)
-        pygame.draw.rect(screen, WHITE, (FIELD_WIDTH, 0, SCREEN_WIDTH-FIELD_WIDTH, SCREEN_HEIGHT))  # Right stats zone
+        # screen.fill(GREEN)
+        # pygame.draw.rect(screen, WHITE, (FIELD_WIDTH, 0, SCREEN_WIDTH-FIELD_WIDTH, SCREEN_HEIGHT))  # Right stats zone
+
+        # Draw the field
+        pygame.draw.rect(screen, GREEN, (0, 0, FIELD_WIDTH, FIELD_HEIGHT))
 
                                         # (x, y, width, height)
         pygame.draw.rect(screen, WHITE, (0, 0, FIELD_WIDTH, SCORING_ZONE_HEIGHT))  # Top scoring zone
         pygame.draw.rect(screen, WHITE, (0, FIELD_HEIGHT - SCORING_ZONE_HEIGHT, FIELD_WIDTH, SCORING_ZONE_HEIGHT))  # Bottom scoring zone
 
-        pygame.draw.line(screen, BLACK, (SCREEN_WIDTH - FIELD_WIDTH, 0), (SCREEN_WIDTH - FIELD_WIDTH, SCREEN_HEIGHT), 3)
+        
 
     def move_all_players_detla(self, right=0, up=0, exclude_index=None):
 
@@ -338,6 +358,9 @@ class PlayMaker:
             raise ValueError(f'Invalid move: {next_move}')
 
 
+
+
+
 def main():
     playmaker = PlayMaker(players=players_starting)
 
@@ -346,50 +369,20 @@ def main():
     pygame.display.set_caption("PlayMaker Simulation")
     clock = pygame.time.Clock()
 
+    playmaker.draw_initial(screen)
+
     playmaker.draw_field(screen)
     playmaker.draw_players(screen)
     
     running = True
     current_move = playmaker.get_next_move("START")
     i = 0
-    # while running:
-    #     i += 1
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-
-    #     if i == 3:
-    #         print(f'Before in cut last in stack: {playmaker.last_in_stack}')
-    #         playmaker.do_next_move("STACK_IN_CUT", clock=clock, screen=screen)
-    #         print(f'After in cut last in stack: {playmaker.last_in_stack}')
-        
-    #     # if i == 5:
-    #     #     playmaker.pass_to_cut()
-        
-    #     # if i == 7:
-    #     #     playmaker.move_all_after_cut()
-
-    #     # if i == 7:
-    #     #     playmaker.do_next_move("RESET_BREAK")
-        
-    #     if i == 5:
-    #         print(f'Before deep cut last in stack: {playmaker.last_in_stack}')
-    #         playmaker.do_next_move("STACK_IN_CUT", clock=clock, screen=screen)
-    #         print(f'After deep cut last in stack: {playmaker.last_in_stack}')
-
-    #     if i == 7:
-    #         playmaker.do_next_move("STACK_DEEP_CUT", clock=clock, screen=screen)
-
-    #     playmaker.draw_field(screen)
-    #     playmaker.draw_players(screen)
-
-    #     pygame.display.flip()
-
-    #     clock.tick(1)
-
 
 
     moves = [current_move]
+    moves_list_font = pygame.font.Font(None, 36)
+    score_font = pygame.font.Font(None, 56)
+
 
     while running:
 
@@ -399,15 +392,23 @@ def main():
             if event.type == pygame.QUIT:
                 running = False            
 
-        
+        playmaker.render_moves_list_text(moves, screen, moves_list_font)
+
+
         playmaker.do_next_move(current_move, clock=clock, screen=screen)
 
         playmaker.draw_field(screen)
         playmaker.draw_players(screen)
 
+
         pygame.display.flip()
 
+
+
         if playmaker.check_point_scored():
+            playmaker.render_score_text(screen, score_font)
+            pygame.display.flip()
+            pygame.time.wait(5000)
             running = False
         else:
             current_move = playmaker.get_next_move(current_move)
@@ -419,7 +420,7 @@ def main():
 
     print("Game Over")
     print(f'Moves: {moves}')
-    # pygame.quit()
+    pygame.quit()
 
 
 main()
