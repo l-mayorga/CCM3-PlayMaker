@@ -1,4 +1,4 @@
-# Play Maker - Create Offensive Game Plans for Ultimate Frisbee
+# Play Maker - Create Game Plans for Ultimate Frisbee
 
 ## Description
 
@@ -17,7 +17,7 @@ PlayMaker generates game plans for sequences of moves a team can make to score w
 
 ## Personal Significance
 
-I started playing Ultimate when I was in fifth grade and have played ever since. I am very familiar with the rules of the game and common offensive strategies used to try and score points. For Bowdoin's D-III team, I play on the offensive line that is responsible for coming up with game plans to score points. PlayMaker does exactly this. When making the transition matrix, I used my experience to estimate how likely transitions are between states so that the simulation could more closely mimic a real world point.
+I started playing Ultimate when I was in fifth grade and have played ever since. I am very familiar with the rules of the game and common offensive strategies used to try and score points. For Bowdoin's D-III team, I play on the offensive line that is responsible for coming up with game plans to score points. PlayMaker does exactly this. When making the transition matrix, I used my experience to approximate how likely transitions are between states so that the simulation could more closely mimic a real world point.
 
 When I landed on this idea, I knew I wanted to pursue it. It is extremely cool to me that sequences produced by PlayMaker are viable and could work at practices this week.
 
@@ -31,12 +31,12 @@ This is an important challenge for me because I have heard lots about pygame and
 
 There is so much more I would've liked to do with this project. To name a couple:
 
-    - Animate players moving
-    - Animate the disc moving
-    - Draw arrows to show where a player or disc is about to move
-    - Add in defenders (even if they don't do anything)
-    - Use a more complex transition matrix with more states
-    - Show all 7 players
+- Animate players moving
+- Animate the disc moving
+- Draw arrows to show where a player or disc is about to move
+- Add in defenders (even if they don't do anything)
+- Use a more complex transition matrix with more states
+- Show all 7 players
 
 ## Is PlayMaker Creative?
 
@@ -46,9 +46,9 @@ I would wonder to see how useful the output would be in a real game. If it creat
 
 ## Known Issues
 
-- Sometimes PlayMaker may raise a ValueError saying "Too many cuts".
+- Sometimes PlayMaker may raise a ValueError stating "Too many cuts".
   - Since the number of players is reduced for simplicity, there are less players to make cuts, so there might not be enough players to make a cut. This occurs when there are a lot of consecutive "cut" moves.
 
 ## Sources
 
-ChatGPT and gitHub CoPilot for help with pygame and troubleshooting.
+ChatGPT and GitHub CoPilot for help with pygame and troubleshooting.
