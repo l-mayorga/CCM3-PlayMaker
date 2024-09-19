@@ -15,6 +15,7 @@ GREEN = (44, 128, 44)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 ORANGE = (255, 165, 0)
 
 # Define various player field spacings
@@ -23,6 +24,7 @@ SECONDARY_HANDLER_STARTING_X = 100
 PLAYER_STARTING_X = 200
 HANDLER_OFFSET = 100
 STACK_SPACING = 50
+PLAYER_RADIUS = 15
 
 # Define moves list spacing
 MOVES_LIST_SPACING = 50
@@ -150,9 +152,9 @@ class PlayMaker:
         """Draw the players on the field according to the positions in self.players."""
         for i, player in enumerate(self.players):
             if i == self.holder:
-                pygame.draw.circle(screen, (255, 0, 0), player, 15)
+                pygame.draw.circle(screen, RED, player, PLAYER_RADIUS)
             else:
-                pygame.draw.circle(screen, (0, 0, 255), player, 15)
+                pygame.draw.circle(screen, BLUE, player, PLAYER_RADIUS)
 
     def draw_field_and_scoring_zones(self, screen):
         """Draw the field and scoring zones on the screen."""
@@ -368,6 +370,7 @@ def main():
     current_move = playmaker.get_next_move("START")
     moves = [current_move]
 
+    # Game loop
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
