@@ -147,7 +147,7 @@ class PlayMaker:
         screen.blit(text_surface, (FIELD_WIDTH + 20, SCREEN_HEIGHT * 0.8))
 
     def draw_players(self, screen):
-        """Draw the players on the field accorind to the positions in self.players."""
+        """Draw the players on the field according to the positions in self.players."""
         for i, player in enumerate(self.players):
             if i == self.holder:
                 pygame.draw.circle(screen, (255, 0, 0), player, 15)
@@ -166,7 +166,7 @@ class PlayMaker:
             (0, FIELD_HEIGHT - SCORING_ZONE_HEIGHT, FIELD_WIDTH, SCORING_ZONE_HEIGHT),
         )
 
-    def move_all_players_detla(self, right=0, up=0, exclude_index=None):
+    def move_all_players_delta(self, right=0, up=0, exclude_index=None):
         """Move all players by the given delta values, except for the player at exclude_index.
         This should almost always be the disc holder.
         """
@@ -228,7 +228,7 @@ class PlayMaker:
 
     def move_all_after_cut(self):
         """Move all players after a cut has been made."""
-        self.move_all_players_detla(
+        self.move_all_players_delta(
             0,
             up=self.get_player_pos(0)[1] - self.disc_pos[1],
             exclude_index=self.holder,
@@ -338,7 +338,7 @@ class PlayMaker:
             self.handle_cut_transitions(clock, screen)
 
         else:
-            raise ValueError(f"Unkown move: {next_move}")
+            raise ValueError(f"Unknown move: {next_move}")
 
 
 def main():

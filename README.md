@@ -4,7 +4,7 @@
 
 [Ultimate Frisbee](https://en.wikipedia.org/wiki/Ultimate_frisbee) is a game played between two teams of 7 players. It is very similar to American Football, but instead of a football, a flying disc is used. Other large distinctions are that Ultimate is a non-contact sport, and you cannot move while holding the disc. Similarly to American Football, a team scores after they possess the disc in their opponent's end (scoring) zone. A player can throw the disc to other team members and can then move again. Although massively simplified, these rules explain the game PlayMaker aims to simulate.
 
-PlayMaker generates game plans for sequences of moves a team can make to score while on offense. It uses a Markov chain to transition between states (moves). It uses pygame to visually represent players on the field (reduced to 5 for simplicity). The player marked in red is the player holding the disc.
+PlayMaker generates game plans for sequences of moves a team can make to score while on offense. It uses a Markov chain to transition between states (moves). It uses pygame to visually represent players on the field (reduced to 5 for simplicity) and display the sequence of moves. The player marked in red is the player holding the disc.
 
 ## Usage
 
