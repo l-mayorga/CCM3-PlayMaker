@@ -203,6 +203,9 @@ class PlayMaker:
             self.players[index][1] -= up
     
     def move_player(self, index, x, y):
+        if index == self.holder:
+            raise ValueError(f'Cannot move the disc holder: {index}')
+        
         self.players[index][0] = x
         self.players[index][1] = y
     
@@ -230,16 +233,18 @@ class PlayMaker:
             stack_mid_pos = self.get_player_pos(3)
             self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] + STACK_SPACING)
 
+            # Fix for weird edge case would go here
+
         elif index == 3:  # Second in stack
             front_stack_pos = self.get_player_pos(2)
             self.move_player(index, front_stack_pos[0], front_stack_pos[1] - STACK_SPACING)
 
-            self.last_in_stack += 1
+            self.last_in_stack == 4
 
         elif index == 4:  # Third in stack
             stack_mid_pos = self.get_player_pos(2)
             self.move_player(index, stack_mid_pos[0], stack_mid_pos[1] - STACK_SPACING*2)
-            self.last_in_stack += 1
+            self.last_in_stack == 4
 
     def move_all_after_cut(self):
         self.move_all_players_detla(0, up=self.get_player_pos(0)[1] - self.disc_pos[1], exclude_index=self.holder)
@@ -275,8 +280,8 @@ class PlayMaker:
             raise ValueError(f'Too many cuts: {self.last_in_stack}')
 
     def make_in_cut_break(self):
-        current_pos = self.get_player_pos(len(self.players) - 1)
-        self.move_player(len(self.players) -1, current_pos[0] - 100, current_pos[1] + 100)
+        current_pos = self.get_player_pos(self.last_in_stack)
+        self.move_player(self.last_in_stack, current_pos[0] - 100, current_pos[1] + 100)
 
 
     def make_deep_cut(self):
@@ -288,18 +293,47 @@ class PlayMaker:
         self.pass_to_player_and_clear(self.last_in_stack)
         self.last_in_stack -= 1
 
+    def handle_cut_transitions(self, clock, screen):
+            self.draw_field(screen)
+            self.draw_players(screen)
+        
+            pygame.display.flip()
+            clock.tick(1)
+
+            self.pass_to_cut()
+
+            self.draw_field(screen)
+            self.draw_players(screen)
+
+            pygame.display.flip()
+            clock.tick(1)
+
+            self.move_all_after_cut()
+
+            self.draw_field(screen)
+            self.draw_players(screen)
+
+            pygame.display.flip()
+            clock.tick(1)
     
-    def do_next_move(self, next_move):
+    def do_next_move(self, next_move, clock=None, screen=None):
         if next_move == "RESET_BREAK":
             self.pass_to_reset()
         elif next_move == "RESET_UPLINE":
             self.pass_to_reset()
         elif next_move == "STACK_IN_CUT":
             self.make_in_cut()
+            self.handle_cut_transitions(clock, screen)
+
         elif next_move == "STACK_BREAK_CUT":
             self.make_in_cut_break()
+            self.handle_cut_transitions(clock, screen)
+
+
         elif next_move == "STACK_DEEP_CUT":
             self.make_deep_cut()
+            self.handle_cut_transitions(clock, screen)
+
         else:
             raise ValueError(f'Invalid move: {next_move}')
 
@@ -316,82 +350,75 @@ def main():
     playmaker.draw_players(screen)
     
     running = True
-    current_move = "START"
+    current_move = playmaker.get_next_move("START")
     i = 0
-    pass_next = False
-    move_after_cut = False
-
-    while running:
-        i += 1
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        if i == 3:
-            playmaker.do_next_move("STACK_IN_CUT")
-        
-        if i == 5:
-            playmaker.pass_to_cut()
-        
-        if i == 7:
-            playmaker.move_all_after_cut()
-
-        if i == 9:
-            playmaker.do_next_move("RESET_BREAK")
-
-        playmaker.draw_field(screen)
-        playmaker.draw_players(screen)
-
-        pygame.display.flip()
-
-        clock.tick(1)
-
-
-
-
     # while running:
-
     #     i += 1
-    #     print(f'\n\nIteration: {i}, Current Move: {current_move}')
     #     for event in pygame.event.get():
     #         if event.type == pygame.QUIT:
     #             running = False
-            
-    #     if move_after_cut:
-    #         print("Adjusting after cut")
-    #         playmaker.move_all_after_cut()
-    #         move_after_cut = False
-            
 
-    #     if pass_next:
-    #         print("Passing to cut")
-    #         playmaker.pass_to_cut()
-    #         pass_next = False
-    #         move_after_cut = True
+    #     if i == 3:
+    #         print(f'Before in cut last in stack: {playmaker.last_in_stack}')
+    #         playmaker.do_next_move("STACK_IN_CUT", clock=clock, screen=screen)
+    #         print(f'After in cut last in stack: {playmaker.last_in_stack}')
+        
+    #     # if i == 5:
+    #     #     playmaker.pass_to_cut()
+        
+    #     # if i == 7:
+    #     #     playmaker.move_all_after_cut()
 
-    #     elif "CUT" in current_move: 
-    #         print(f'Cut move: {current_move}')
-    #         pass_next = True
-            
+    #     # if i == 7:
+    #     #     playmaker.do_next_move("RESET_BREAK")
+        
+    #     if i == 5:
+    #         print(f'Before deep cut last in stack: {playmaker.last_in_stack}')
+    #         playmaker.do_next_move("STACK_IN_CUT", clock=clock, screen=screen)
+    #         print(f'After deep cut last in stack: {playmaker.last_in_stack}')
 
-
-    #     else:
-    #         playmaker.do_next_move(current_move)
-    #         current_move = playmaker.get_next_move(current_move)
+    #     if i == 7:
+    #         playmaker.do_next_move("STACK_DEEP_CUT", clock=clock, screen=screen)
 
     #     playmaker.draw_field(screen)
     #     playmaker.draw_players(screen)
 
     #     pygame.display.flip()
 
-    #     if playmaker.check_point_scored():
-    #         running = False
+    #     clock.tick(1)
+
+
+
+    moves = [current_move]
+
+    while running:
+
+        i += 1
+        print(f'\n\nIteration: {i}, Current Move: {current_move}')
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False            
+
         
-    #     # clock.tick(1)  # Update once per second
-    #     pygame.time.wait(5000)
+        playmaker.do_next_move(current_move, clock=clock, screen=screen)
+
+        playmaker.draw_field(screen)
+        playmaker.draw_players(screen)
+
+        pygame.display.flip()
+
+        if playmaker.check_point_scored():
+            running = False
+        else:
+            current_move = playmaker.get_next_move(current_move)
+            moves.append(current_move)
+
+        clock.tick(1)  # Update once per second
+        # pygame.time.wait(5000)
 
 
-    # print("Game Over")
+    print("Game Over")
+    print(f'Moves: {moves}')
     # pygame.quit()
 
 
