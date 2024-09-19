@@ -1,6 +1,10 @@
 import numpy as np
 import pygame
 
+"""
+Simulate a round of Ultimate Frisbee and generate offensive plays using a Markov chain. See the README for more details.
+"""
+
 # Define screen dimensions
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 700
@@ -96,6 +100,8 @@ PLAYERS_STARTING_POSITIONS = [
 
 
 class PlayMaker:
+    """A class to simulate the PlayMaker ultimate frisbee strategy game."""
+
     def __init__(self, players=[]):
         self.transition_matrix = TRANSITION_MATRIX
         self.moves = list(TRANSITION_MATRIX.keys())
